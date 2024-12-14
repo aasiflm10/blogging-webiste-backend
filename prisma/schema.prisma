@@ -23,12 +23,12 @@ model Blog{
 }
 
 model Tag{
-  tagName String @id @unique
   id String @default(uuid())
-  projectId String
-  project Project @relation(fields: [projectId], references: [id])
-  blogId String
-  blog Blog @relation(fields: [blogId], references: [id])
+  tagName String @id @unique
+  projectId String? //optional
+  project Project? @relation(fields: [projectId], references: [id])
+  blogId String? //optional
+  blog Blog? @relation(fields: [blogId], references: [id])
 }
 
 model Project{
