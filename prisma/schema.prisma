@@ -42,7 +42,7 @@ model BlogProjectTag {
   projectId String
   project Project @relation(fields: [projectId], references: [id])
 
-  @@@id([blogId, tagId, projectId])
+  @@id([blogId, tagId, projectId]) //composite id
 }
 model Project{      
   id String @default(uuid()) @id
