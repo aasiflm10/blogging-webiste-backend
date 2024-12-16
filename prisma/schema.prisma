@@ -26,10 +26,6 @@ model Tag{
   id String @default(uuid()) @unique
   tagName String @id @unique
   blogs BlogProjectTag[]
-  // projectId String? //optional
-  // project Project? @relation(fields: [projectId], references: [id])
-  // blogId String? //optional
-  // blog Blog? @relation(fields: [blogId], references: [id])
 }
 
 model BlogProjectTag {
