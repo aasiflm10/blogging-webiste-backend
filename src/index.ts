@@ -92,7 +92,21 @@ app.post("/blog", async (req, res) => {
       error: err,
     });
   }
+});
 
+app.get("/blogs", async (req, res) => {
+  try {
+    const blogs = await prisma.blog.findMany({
+      include: { tags: { include: { tag: true } } },
+    });
+
+    console.log("blogs : ", blogs);
+
+    res.status(200).json({ blogs: blogs });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "error fetching blogs ", error: err });
+  }
 });
 
 app.listen(3000, () => {
