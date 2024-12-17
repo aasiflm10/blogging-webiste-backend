@@ -22,6 +22,15 @@ model Blog{
   tags BlogsTag[]
 }
 
+model Project{      
+  id String @default(uuid()) @id
+  name String @unique
+  description String
+  liveLink String
+  githubLink String
+  tags ProjectsTag[]
+}
+
 model Tag{
   id String @default(uuid()) @unique
   tagName String @id @unique
@@ -51,13 +60,4 @@ model ProjectsTag {
   project Project @relation(fields: [projectId], references: [id])
 
   @@id([projectId, tagId]) //composite id
-}
-
-model Project{      
-  id String @default(uuid()) @id
-  name String @unique
-  description String
-  liveLink String
-  githubLink String
-  tags ProjectsTag[]
 }

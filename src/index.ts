@@ -109,6 +109,86 @@ app.get("/blogs", async (req, res) => {
   }
 });
 
+app.post("/project", async (req, res) => {
+  try {
+    const { name, description, liveLink, githubLink, tags } = req.body;
+
+    if (!tags || !Array.isArray(tags)) {
+      res.status(400).json({ msg: "Tags should be an array of strings." });
+      return;
+    }
+
+    const tagIds = await Promise.all(
+      tags.map(async (tagName: string) => {
+        const existingTag = await prisma.tag.findUnique({
+          where: {
+            tagName: tagName,
+          },
+        });
+
+        if (existingTag) {
+          return existingTag.id;
+        }
+
+        const newTag = await prisma.tag.create({
+          data: {
+            tagName: tagName,
+          },
+        });
+
+        return newTag.id;
+      })
+    );
+
+    const project = await prisma.project.create({
+      data: {
+        name: name,
+        description: description,
+        liveLink: liveLink,
+        githubLink: githubLink,
+      },
+    });
+
+    //connect tagIds to project via ProjectTags table
+    await Promise.all(
+      tagIds.map(async (tagId) => {
+        await prisma.projectsTag.create({
+          data: {
+            projectId: project.id,
+            tagId: tagId,
+          },
+        });
+      })
+    );
+
+    const projectWithTags = await prisma.project.findFirst({
+      where: {
+        id: project.id,
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true, // Include tag details from BlogsTag relation
+          },
+        },
+      },
+    });
+
+    
+    res
+      .status(200)
+      .json({ msg: "Project added successfully ", project: projectWithTags });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err });
+  }
+});
+
+app.get("/allTags", async (req, res) => {
+  const tags = await prisma.tag.findMany();
+  res.status(200).json({ tags });
+});
+
 app.listen(3000, () => {
   console.log(`Server running on port 3000 http://localhost:3000`);
 });

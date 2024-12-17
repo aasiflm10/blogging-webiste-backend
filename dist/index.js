@@ -100,6 +100,71 @@ app.get("/blogs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ msg: "error fetching blogs ", error: err });
     }
 }));
+app.post("/project", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name, description, liveLink, githubLink, tags } = req.body;
+        if (!tags || !Array.isArray(tags)) {
+            res.status(400).json({ msg: "Tags should be an array of strings." });
+            return;
+        }
+        const tagIds = yield Promise.all(tags.map((tagName) => __awaiter(void 0, void 0, void 0, function* () {
+            const existingTag = yield prisma.tag.findUnique({
+                where: {
+                    tagName: tagName,
+                },
+            });
+            if (existingTag) {
+                return existingTag.id;
+            }
+            const newTag = yield prisma.tag.create({
+                data: {
+                    tagName: tagName,
+                },
+            });
+            return newTag.id;
+        })));
+        const project = yield prisma.project.create({
+            data: {
+                name: name,
+                description: description,
+                liveLink: liveLink,
+                githubLink: githubLink,
+            },
+        });
+        //connect tagIds to project via ProjectTags table
+        yield Promise.all(tagIds.map((tagId) => __awaiter(void 0, void 0, void 0, function* () {
+            yield prisma.projectsTag.create({
+                data: {
+                    projectId: project.id,
+                    tagId: tagId,
+                },
+            });
+        })));
+        const projectWithTags = yield prisma.project.findFirst({
+            where: {
+                id: project.id,
+            },
+            include: {
+                tags: {
+                    include: {
+                        tag: true, // Include tag details from BlogsTag relation
+                    },
+                },
+            },
+        });
+        res
+            .status(200)
+            .json({ msg: "Project added successfully ", project: projectWithTags });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ error: err });
+    }
+}));
+app.get("/allTags", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const tags = yield prisma.tag.findMany();
+    res.status(200).json({ tags });
+}));
 app.listen(3000, () => {
     console.log(`Server running on port 3000 http://localhost:3000`);
 });
