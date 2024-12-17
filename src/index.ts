@@ -15,7 +15,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/blog", async (req, res) => {
-  const { title, description, author } = req.body;
+  try { 
+    const { title, description, author } = req.body;
   const tags: Tag[] = req.body.tags;
 
   const tagIds = await Promise.all(
@@ -51,7 +52,7 @@ app.post("/blog", async (req, res) => {
 
   await Promise.all(
     tagIds.map( async (tagId) =>{
-      await prisma.blogProjectTag.create({
+      await prisma.blogsTag.create({
         data : {
           blogId : blog.id,
           tagId : tagId
@@ -59,6 +60,21 @@ app.post("/blog", async (req, res) => {
       })
     })
   )
+  const blogWithTags = prisma.blog.findFirst({
+    where : {
+      id : blog.id
+    },
+    include : {
+      tags : true
+    }
+  })
+  res.status(200).json({msg : "Blog created successfully", blogWithTags})
+
+  }
+  catch(err){
+    console.log("error while creating blog or adding tags : ", err);
+    res.status(500).json({msg:  " Error creating blog or adding tags ", error : err})
+  }
 });
 
 app.listen(3000, () => {
