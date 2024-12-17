@@ -21,30 +21,44 @@ app.post("/blog", async (req, res) => {
   const tagIds = await Promise.all(
     tags.map(async (tag) => {
       const existingTag = await prisma.tag.findUnique({
-        where : {
-          tagName : tag.tagName
-        }
-      })
+        where: {
+          tagName: tag.tagName,
+        },
+      });
 
-      if(existingTag){
+      if (existingTag) {
         return existingTag.id;
       }
 
-      const newTag = await prisma.tag.create{
-        data : {
-          tagName : tag.tagName
-        }
-      }
+      const newTag = await prisma.tag.create({
+        data: {
+          tagName: tag.tagName,
+        },
+      });
+
+      return newTag.id;
     })
   );
+
+
   const blog = await prisma.blog.create({
     data: {
       title: title,
       description: description,
       author: author,
-      tags: {},
     },
   });
+
+  await Promise.all(
+    tagIds.map( async (tagId) =>{
+      await prisma.blogProjectTag.create({
+        data : {
+          blogId : blog.id,
+          tagId : tagId
+        }
+      })
+    })
+  )
 });
 
 app.listen(3000, () => {

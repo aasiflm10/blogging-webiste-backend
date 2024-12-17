@@ -19,18 +19,30 @@ model Blog{
   description String
   author String
   createdAt DateTime @default(now())
-  tags BlogProjectTag[]
+  tags BlogsTag[]
 }
 
 model Tag{
   id String @default(uuid()) @unique
   tagName String @id @unique
-  blogs BlogProjectTag[]
+  blogs BlogsTag[]
+  projects ProjectsTag[]
 }
 
-model BlogProjectTag {
+model BlogsTag {
   blogId String
   blog Blog @relation(fields: [blogId], references: [id])
+
+  tagId String
+  tag Tag @relation(fields: [tagId], references: [id])
+
+  // projectId String
+  // project Project @relation(fields: [projectId], references: [id])
+
+  @@id([blogId, tagId]) //composite id
+}
+
+model ProjectsTag {
 
   tagId String
   tag Tag @relation(fields: [tagId], references: [id])
@@ -38,13 +50,14 @@ model BlogProjectTag {
   projectId String
   project Project @relation(fields: [projectId], references: [id])
 
-  @@id([blogId, tagId, projectId]) //composite id
+  @@id([projectId, tagId]) //composite id
 }
+
 model Project{      
   id String @default(uuid()) @id
   name String @unique
   description String
   liveLink String
   githubLink String
-  tags BlogProjectTag[]
+  tags ProjectsTag[]
 }
