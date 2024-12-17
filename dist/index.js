@@ -161,6 +161,19 @@ app.post("/project", (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ error: err });
     }
 }));
+app.get("/projects", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const projects = yield prisma.project.findMany({
+            include: { tags: { include: { tag: true } } },
+        });
+        console.log("projects : ", projects);
+        res.status(200).json({ blogs: projects });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: "error fetching blogs ", error: err });
+    }
+}));
 app.get("/allTags", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const tags = yield prisma.tag.findMany();
     res.status(200).json({ tags });

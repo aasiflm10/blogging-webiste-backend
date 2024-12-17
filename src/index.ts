@@ -174,7 +174,6 @@ app.post("/project", async (req, res) => {
       },
     });
 
-    
     res
       .status(200)
       .json({ msg: "Project added successfully ", project: projectWithTags });
@@ -184,6 +183,20 @@ app.post("/project", async (req, res) => {
   }
 });
 
+app.get("/projects", async (req, res) => {
+  try {
+    const projects = await prisma.project.findMany({
+      include: { tags: { include: { tag: true } } },
+    });
+
+    console.log("projects : ", projects);
+
+    res.status(200).json({ projects: projects });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "error fetching blogs ", error: err });
+  }
+});
 app.get("/allTags", async (req, res) => {
   const tags = await prisma.tag.findMany();
   res.status(200).json({ tags });
