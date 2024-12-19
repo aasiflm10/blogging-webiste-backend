@@ -18,7 +18,7 @@ model Blog{
   title String
   description String
   author String
-  imageLink String
+  imageLink String?
   createdAt DateTime @default(now())
   tags BlogsTag[]
 }
@@ -28,7 +28,7 @@ model Project{
   name String @unique
   description String
   liveLink String
-  imageLink String
+  imageLink String?
   githubLink String
   tags ProjectsTag[]
 }
