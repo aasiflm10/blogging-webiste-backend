@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 app.post("/blog", async (req, res) => {
   try {
-    const { title, description, author, tags } = req.body; // Tags are strings here
+    const { title, description, author, tags, imageLink } = req.body; // Tags are strings here
 
     if (!tags || !Array.isArray(tags)) {
       res.status(400).json({ msg: "Tags should be an array of strings." });
@@ -52,6 +52,7 @@ app.post("/blog", async (req, res) => {
         title,
         description,
         author,
+        imageLink
       },
     });
 
@@ -111,7 +112,7 @@ app.get("/blogs", async (req, res) => {
 
 app.post("/project", async (req, res) => {
   try {
-    const { name, description, liveLink, githubLink, tags } = req.body;
+    const { name, description, liveLink, githubLink, tags, imageLink } = req.body;
 
     if (!tags || !Array.isArray(tags)) {
       res.status(400).json({ msg: "Tags should be an array of strings." });
@@ -146,6 +147,7 @@ app.post("/project", async (req, res) => {
         description: description,
         liveLink: liveLink,
         githubLink: githubLink,
+        imageLink
       },
     });
 
